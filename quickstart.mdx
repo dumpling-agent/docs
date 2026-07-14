@@ -96,8 +96,8 @@ Your output file now contains the image with the background removed:
   <Card title="Handle Errors" icon="triangle-exclamation" href="/errors">
     Implement robust error handling
   </Card>
-  <Card title="Explore SDKs" icon="puzzle-piece" href="/sdks/overview">
-    Use our official SDKs for easier integration
+  <Card title="Explore Integrations" icon="puzzle-piece" href="/integrations/overview">
+    Use our official SDKs and integrations
   </Card>
 </CardGroup>
 
@@ -128,4 +128,11 @@ curl -X POST https://api.poof.bg/v1/remove \
   -F "image_file=@photo.jpg" \
   -F "crop=true" \
   -o cropped.png
+
+# Get just the grayscale alpha mask
+curl -X POST https://api.poof.bg/v1/remove \
+  -H "x-api-key: YOUR_API_KEY" \
+  -F "image_file=@photo.jpg" \
+  -F "channels=alpha" \
+  -o mask.png
 ```

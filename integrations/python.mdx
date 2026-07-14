@@ -95,9 +95,12 @@ result = client.remove(
 # Small cropped thumbnail
 result = client.remove(
     "photo.jpg",
-    size="small",
+    size="preview",
     crop=True
 )
+
+# Grayscale alpha mask only
+result = client.remove("photo.jpg", channels="alpha")
 
 # WebP for web
 result = client.remove(

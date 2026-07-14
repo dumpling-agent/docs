@@ -22,9 +22,10 @@ A parameter has an invalid value that doesn't match the expected options.
 
 **Common issues:**
 - `format` must be one of: `png`, `jpg`, `webp`
-- `channels` must be one of: `rgba`, `rgb`
-- `size` must be one of: `full`, `preview`, `small`, `medium`, `large`
-- `crop` must be a boolean: `true` or `false`
+- `channels` must be one of: `rgba`, `rgb`, `alpha`
+- `size` must be one of: `full`, `preview`, `medium`, `hd`
+- `crop` must be a boolean (`true`/`false`) or an aspect ratio like `1:1`, `4:3`, `16:9`
+- `padding` must be a number (`0.1`) or percentage (`10%`)
 
 ### Incorrect Data Types
 
@@ -58,10 +59,11 @@ curl -X POST https://api.poof.bg/v1/remove \
 |-----------|------|--------------|
 | `image_file` | file | Required. Max 20MB |
 | `format` | string | `png`, `jpg`, `webp` |
-| `channels` | string | `rgba`, `rgb` |
+| `channels` | string | `rgba`, `rgb`, `alpha` |
 | `bg_color` | string | Hex, RGB, or color name |
-| `size` | string | `full`, `preview`, `small`, `medium`, `large` |
-| `crop` | boolean | `true`, `false` |
+| `size` | string | `full`, `preview`, `medium`, `hd` |
+| `crop` | boolean or string | `true`, `false`, or aspect ratio like `1:1` |
+| `padding` | string | Number (`0.1`) or percentage (`10%`), with `crop` |
 
 ## Need Help?
 
