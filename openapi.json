@@ -53,25 +53,33 @@
                   },
                   "channels": {
                     "type": "string",
-                    "enum": ["rgba", "rgb"],
+                    "enum": ["rgba", "rgb", "alpha"],
                     "default": "rgba",
-                    "description": "Output color channels. Use 'rgba' for transparency, 'rgb' for opaque."
+                    "description": "Output color channels. Use 'rgba' for transparency, 'rgb' for an opaque image (background filled with bg_color, white by default), or 'alpha' for the grayscale alpha mask only."
                   },
                   "bg_color": {
                     "type": "string",
-                    "description": "Background color (hex, rgb, or color name). Only applies when channels is 'rgb'.",
+                    "description": "Background color (hex, rgb, or color name). Applies when channels is 'rgb' or 'rgba'.",
                     "example": "#ffffff"
                   },
                   "size": {
                     "type": "string",
-                    "enum": ["full", "preview", "small", "medium", "large"],
+                    "enum": ["full", "preview", "medium", "hd"],
                     "default": "full",
                     "description": "Output image size preset."
                   },
                   "crop": {
-                    "type": "boolean",
+                    "oneOf": [
+                      { "type": "boolean" },
+                      { "type": "string", "pattern": "^\\d+:\\d+$" }
+                    ],
                     "default": false,
-                    "description": "Whether to crop the image to the subject bounds."
+                    "description": "Crop the image to the subject bounds. Pass true/false or an aspect ratio like '1:1', '4:3', '16:9'."
+                  },
+                  "padding": {
+                    "type": "string",
+                    "description": "Padding around the subject when crop is enabled, as a fraction (e.g. '0.1') or percentage (e.g. '10%').",
+                    "example": "10%"
                   }
                 }
               }
@@ -115,6 +123,20 @@
                 "schema": {
                   "type": "integer",
                   "example": 1080
+                }
+              },
+              "X-Matte-Confidence": {
+                "description": "Heuristic confidence in the alpha matte, 0-1. Mean decisiveness of the mask: 1 means fully binary, lower values mean the model hedged. Not a calibrated probability.",
+                "schema": {
+                  "type": "number",
+                  "example": 0.9732
+                }
+              },
+              "X-Matte-Ambiguous-Ratio": {
+                "description": "Fraction of pixels with alpha between 0.1 and 0.9, 0-1. High values indicate large uncertain regions; useful for flagging results for review.",
+                "schema": {
+                  "type": "number",
+                  "example": 0.0427
                 }
               }
             },

@@ -128,4 +128,11 @@ curl -X POST https://api.poof.bg/v1/remove \
   -F "image_file=@photo.jpg" \
   -F "crop=true" \
   -o cropped.png
+
+# Get just the grayscale alpha mask
+curl -X POST https://api.poof.bg/v1/remove \
+  -H "x-api-key: YOUR_API_KEY" \
+  -F "image_file=@photo.jpg" \
+  -F "channels=alpha" \
+  -o mask.png
 ```

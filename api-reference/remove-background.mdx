@@ -22,11 +22,12 @@ The core endpoint for background removal. Send an image, get back a processed im
 <ParamField body="channels" type="string" default="rgba">
   Output color channels.
   - `rgba` — Include alpha channel (transparency)
-  - `rgb` — Opaque output, uses `bg_color` for background
+  - `rgb` — Opaque output, uses `bg_color` for background (white by default)
+  - `alpha` — Grayscale alpha mask only: white foreground, black background
 </ParamField>
 
 <ParamField body="bg_color" type="string">
-  Background color when `channels` is `rgb`. Accepts:
+  Background color when `channels` is `rgb` or `rgba`. Accepts:
   - Hex: `#ffffff`, `#fff`
   - RGB: `rgb(255, 255, 255)`
   - Named: `white`, `black`, `red`
@@ -35,14 +36,18 @@ The core endpoint for background removal. Send an image, get back a processed im
 <ParamField body="size" type="string" default="full">
   Output image size preset.
   - `full` — Original resolution
-  - `preview` — 256px max dimension
-  - `small` — 512px max dimension
-  - `medium` — 1024px max dimension
-  - `large` — 2048px max dimension
+  - `preview` — up to 0.25 megapixels
+  - `medium` — up to 1.5 megapixels
+  - `hd` — up to 4 megapixels
 </ParamField>
 
-<ParamField body="crop" type="boolean" default="false">
+<ParamField body="crop" type="boolean | string" default="false">
   Crop the output to the subject bounds, removing empty space around the subject.
+  Pass `true`/`false`, or an aspect ratio like `1:1`, `4:3`, `16:9` to crop to that ratio around the subject.
+</ParamField>
+
+<ParamField body="padding" type="string">
+  Padding around the subject when `crop` is enabled, as a fraction (`0.1`) or percentage (`10%`).
 </ParamField>
 
 ## Response
@@ -56,6 +61,8 @@ The API returns the processed image directly in the response body. Check the res
 | `X-Processing-Time-Ms` | Processing time in milliseconds |
 | `X-Image-Width` | Output image width in pixels |
 | `X-Image-Height` | Output image height in pixels |
+| `X-Matte-Confidence` | Confidence in the alpha matte, `0`–`1`. `1` means a fully decisive mask; lower values mean the model hedged. Heuristic, not a calibrated probability |
+| `X-Matte-Ambiguous-Ratio` | Fraction of pixels with alpha between 0.1 and 0.9, `0`–`1`. High values indicate large uncertain regions — useful for flagging results for manual review |
 
 ## Examples
 
@@ -128,6 +135,32 @@ const result = await poof.remove(image, {
 
 </CodeGroup>
 
+### Alpha Mask Only
+
+Get just the grayscale alpha mask (white = foreground, black = background) — useful for custom compositing pipelines:
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.poof.bg/v1/remove \
+  -H "x-api-key: YOUR_API_KEY" \
+  -F "image_file=@photo.jpg" \
+  -F "channels=alpha" \
+  -o mask.png
+```
+
+```python Python
+result = client.remove("photo.jpg", channels="alpha")
+result.save("mask.png")
+```
+
+```typescript TypeScript
+const result = await poof.remove(image, { channels: 'alpha' });
+await fs.writeFile('mask.png', result);
+```
+
+</CodeGroup>
+
 ### Cropped Thumbnail
 
 Get a small, cropped preview:
@@ -138,7 +171,7 @@ Get a small, cropped preview:
 curl -X POST https://api.poof.bg/v1/remove \
   -H "x-api-key: YOUR_API_KEY" \
   -F "image_file=@photo.jpg" \
-  -F "size=small" \
+  -F "size=preview" \
   -F "crop=true" \
   -o thumbnail.png
 ```
@@ -146,7 +179,7 @@ curl -X POST https://api.poof.bg/v1/remove \
 ```python Python
 result = client.remove(
     "photo.jpg",
-    size="small",
+    size="preview",
     crop=True
 )
 result.save("thumbnail.png")
@@ -154,7 +187,7 @@ result.save("thumbnail.png")
 
 ```typescript TypeScript
 const result = await poof.remove(image, {
-  size: 'small',
+  size: 'preview',
   crop: true
 });
 ```

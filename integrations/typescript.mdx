@@ -110,9 +110,12 @@ const result = await poof.remove(image, {
 
 // Small cropped thumbnail
 const result = await poof.remove(image, {
-  size: 'small',
+  size: 'preview',
   crop: true,
 });
+
+// Grayscale alpha mask only
+const result = await poof.remove(image, { channels: 'alpha' });
 
 // WebP for web
 const result = await poof.remove(image, {
